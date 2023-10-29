@@ -1,11 +1,6 @@
 const express = require('express');
 const app = express();
 
-// const PORT = 3000;
-// app.listen(PORT, ()=>{
-//     console.log(`Server is running on PORT ${PORT}`);
-// })
-
 const fs = require('fs').promises;
 const path = require('path');
 const process = require('process');
@@ -13,8 +8,9 @@ const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 const { listRecentEmails } = require('./vacationResponse');
 
+// Modify for modifying threads and sending emails
+// Labels for creating lables
 const SCOPES = ["https://www.googleapis.com/auth/gmail.modify", "https://www.googleapis.com/auth/gmail.labels"];
-
 
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
@@ -26,7 +22,8 @@ async function authorize(){
     if(client){
         return client;
     }
-    
+
+    // via local-auth library
     client = await authenticate({
         scopes: SCOPES,
         keyfilePath: CREDENTIALS_PATH,
@@ -37,16 +34,11 @@ async function authorize(){
     return client;
 }
 
-// loading previous credentials from a file
+// OAuth type is External ~ 1 day expiry
 async function loadSavedCredentialsIfExist(){
     try{
-        // await since reading a file
         const content = await fs.readFile(TOKEN_PATH);
-
-        // assumed content is in json format 
         const credentials = JSON.parse(content);
-
-        // adds content to already created object provided by googleapi 
         return google.auth.fromJSON(credentials);
 
     } catch (err) {
@@ -54,7 +46,7 @@ async function loadSavedCredentialsIfExist(){
     }
 }
 
-// save credentials in a file which is then loaded in 'google.auth.fromJSON' object. 
+// Saving new credentials which are later loaded in 'google.auth' object. 
 async function saveCredentials(client) {
     const content = await fs.readFile(CREDENTIALS_PATH);
     const keys = JSON.parse(content);
@@ -75,8 +67,9 @@ function startEmailHandling(){
             listRecentEmails(auth);
             return null;
         })
-        .catch(console.error);
+        .catch(error);
 }
 
+// Creating random interval or 45-120 seconds
 const randomInterval = Math.floor(Math.random() * (120 - 45 + 1) + 45) * 1000; 
 setTimeout(startEmailHandling, randomInterval);

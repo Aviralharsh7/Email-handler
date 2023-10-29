@@ -8,7 +8,8 @@ async function listRecentEmails(auth){
             version: 'v1',
             auth,
         });
-        // extract top 50 threads with inbox label
+
+        // extract top 10 threads with inbox label
         const response = await gmail.users.threads.list({
             userId: 'me',
             maxResults: 10,
@@ -25,12 +26,12 @@ async function listRecentEmails(auth){
             });
 
             const allMessage = threadDetails.data.messages;
-            // check for atleast once occurence 
+
+            // check for atleast one reply made in thread 
             const hasReplied = await hasRepliedMessage(allMessage);
             
 
             if (!hasReplied){
-                //await sendVacationEmail(auth, thread.id);
                 await sendVacationEmail(auth, thread.id);
                 let labelName = "Vacation"
                 await applyLabelToThread(auth, thread.id, labelName);
@@ -51,7 +52,7 @@ async function hasRepliedMessage(messages) {
             return false;
 
     } catch (error){
-        return false;
+        console.log("Error checking for previous replies: ", error);
     }
 }
 
@@ -102,9 +103,9 @@ async function sendVacationEmail(auth, threadId) {
 
         const messages = threadDetails.data.messages;
 
-        // Get the first message in the thread (the most recent one)
+        // extract most recent message in thread
         const message = messages[0];
-        // console.log("message: ##### ", message);
+        // console.log("message: ", message);
 
         // Extract the sender's email from the 'From' header
         // const headers = message.payload.headers;
@@ -144,17 +145,6 @@ async function sendVacationEmail(auth, threadId) {
         });
         const raw = makeBody(ref, InReply, to, 'larrypageverified@gmail.com', sub, 'I am on vacation');
 
-        // const recipientEmail = fromHeader;
-        // const subject = "Revert back after Vacation"
-        // const emailBody = "I am vacation bro dnd"
-
-        // const rawMessage = `
-        //     To: ${recipientEmail}
-        //     Subject: ${subject}
-            
-        //     ${emailBody}
-        // `;
-
         await gmail.users.messages.send({
             userId: 'me',
             resource: {
@@ -188,7 +178,6 @@ async function applyLabelToThread(auth, threadId, labelName){
                 addLabelIds: [labelId],
             },
         });
-        // console.log("threads: ", newThread );
     } catch (error){
         console.error("Error applying label: ", error);
     }
@@ -220,7 +209,6 @@ async function listLabels(auth){
 
 async function createLabel (auth, labelName){
     try{
-
         const gmail = google.gmail({
             version: 'v1',
             auth,
