@@ -67,7 +67,9 @@ function startEmailHandling(){
             listRecentEmails(auth);
             return null;
         })
-        .catch(error);
+        .catch((error) => {
+            console.log("Error starting email handler: ", error);
+        });
 }
 
 // Creating random interval or 45-120 seconds
