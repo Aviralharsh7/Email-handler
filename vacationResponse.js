@@ -58,19 +58,41 @@ async function hasRepliedMessage(messages) {
 
 async function sendVacationEmail(threadId, auth) {
     try {
-const gmail = google.gmail({
-  version: 'v1',
-  auth,
-});
+        const gmail = google.gmail({
+            version: 'v1',
+            auth,
+        });
         // First convert string to binary buffer and then encode the buffer as base64
-        const message = {
-            raw: Buffer.from("I am on vacation").toString('base64'),
-        }
 
+        const threadDetails = await gmail.users.threads.get({
+            userId: 'me',
+            id: threadId,
+        });
+
+        const messages = threadDetails.data.messages;
+
+        // Get the first message in the thread (the most recent one)
+        const message = messages[0];
+
+        // Extract the sender's email from the 'From' header
+        const headers = message.payload.headers;
+        const fromHeader = headers.find(header => header.name === 'From');
+
+        const recipientEmail = fromHeader;
+        const subject = "Revert back after Vacation"
+        const emailBody = "I am vacation bro dnd"
+
+
+        const rawMessage = `
+            To: ${recipientEmail}
+            Subject: ${subject}
+            
+            ${emailBody}
+        `;
         await gmail.users.messages.send({
             userId: 'me',
             resource: {
-                raw: message.raw,
+                raw: btoa(rawMessage),
                 threadId: threadId,
             },
         });

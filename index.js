@@ -13,7 +13,8 @@ const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 const { listRecentEmails } = require('./vacationResponse');
 
-const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
+const SCOPES = ["https://www.googleapis.com/auth/gmail.modify"];
+
 
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
