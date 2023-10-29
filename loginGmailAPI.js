@@ -80,7 +80,3 @@ async function listLabels(auth){
 
 authorize().then(listLabels).catch(console.error);
 
-module.exports = {
-    authorize,
-    
-}

@@ -1,7 +1,14 @@
+const { google } = require('googleapis');
 const { gmail } = require("googleapis/build/src/apis/gmail");
 
-async function listRecentEmails(){
+
+
+async function listRecentEmails(auth){
     try {
+const gmail = google.gmail({
+  version: 'v1',
+  auth,
+});
         // extract top 50 threads with inbox label
         const response = await gmail.users.threads.list({
             userId: 'me',
@@ -19,19 +26,14 @@ async function listRecentEmails(){
             });
 
             const allMessage = threadDetails.data.messages;
-
             // check for atleast once occurence 
-            let hasReplied = false;
-            for(const message of allMessage){
-                if(message.fromMe){
-                    hasReplied = true;
-                    break;
-                }
-            }
+            const hasReplied = await hasRepliedMessage(allMessage);
+            
 
             if (!hasReplied){
-                await sendVacationEmail(thread.id);
-                await applyLabelToThread(thread.id, 'Vacation');
+            console.log("Res:######################################### ");
+                await sendVacationEmail(thread.id, auth);
+                // await applyLabelToThread(thread.id, 'Vacation');
             }
         }
     } catch (error){
@@ -39,9 +41,27 @@ async function listRecentEmails(){
     }
 }
 
-async function sendVacationEmail(threadId) {
+async function hasRepliedMessage(messages) {
     try {
+            for(const message of messages){
+                if(message.labelIds.includes('SENT')){
+                    return true;
+                    
+                }
+            }
+            return false;
 
+    } catch (error){
+        return false;
+    }
+}
+
+async function sendVacationEmail(threadId, auth) {
+    try {
+const gmail = google.gmail({
+  version: 'v1',
+  auth,
+});
         // First convert string to binary buffer and then encode the buffer as base64
         const message = {
             raw: Buffer.from("I am on vacation").toString('base64'),
