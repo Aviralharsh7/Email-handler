@@ -13,7 +13,7 @@ const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 const { listRecentEmails } = require('./vacationResponse');
 
-const SCOPES = ["https://www.googleapis.com/auth/gmail.modify"];
+const SCOPES = ["https://www.googleapis.com/auth/gmail.modify", "https://www.googleapis.com/auth/gmail.labels"];
 
 
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
@@ -69,28 +69,14 @@ async function saveCredentials(client) {
     await fs.writeFile(TOKEN_PATH, payload);
 }
 
-// extracting labels in client's account 
-async function listLabels(auth){
-    const gmail = google.gmail({version: 'v1', auth});
-    const res = await gmail.users.labels.list({
-        userId: 'me',
-    });
-    const labels = res.data.labels;
-    if( !labels || labels.length === 0){
-        console.log('No labels found');
-        return;
-    }
-    console.log('Labels:');
-    labels.forEach((label) =>{
-        console.log(` - ${label.name}`);
-    });
+function startEmailHandling(){
+    authorize().
+        then((auth) =>{
+            listRecentEmails(auth);
+            return null;
+        })
+        .catch(console.error);
 }
 
-authorize().then((auth) => {
-        listLabels(auth); 
-        listRecentEmails(auth);
-        // console.log("auth: ", auth);
-        return null;
-    }).catch(console.error);
-
-// authorize().then(listRecentEmails).catch(console.error);
+const randomInterval = Math.floor(Math.random() * (120 - 45 + 1) + 45) * 1000; 
+setTimeout(startEmailHandling, randomInterval);
