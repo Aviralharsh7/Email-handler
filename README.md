@@ -20,3 +20,7 @@
     - adding test users
 - Extract your credentials.json file and add it to your node.js application
 - run **`node index.js`**
+
+## Choices
+
+- Created a throw away Google Account for safety purpose
