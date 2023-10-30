@@ -15,7 +15,7 @@
 - Create a google account
 - Create a project on Google cloud
 - Enable Gmail API
-- Setup Credentials which includes
+- Setup OAuth client ID and its credentials which includes
     - defining relevant scopes ([documentation](https://developers.google.com/gmail/api/auth/scopes))
     - adding test users
 - Extract your credentials.json file and add it to your node.js application
