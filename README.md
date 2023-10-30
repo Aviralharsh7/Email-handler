@@ -21,6 +21,8 @@
 - Extract your credentials.json file and add it to your node.js application
 - run **`node index.js`**
 
-## Choices
+## AppSpec 
+- https://github.com/Aviralharsh7/Email-handler/blob/main/AppSpec.md
 
-- Created a throw away Google Account for safety purpose
+## Improvements 
+- Using .dotenv for handling credentials details instead of .gitIgnore
